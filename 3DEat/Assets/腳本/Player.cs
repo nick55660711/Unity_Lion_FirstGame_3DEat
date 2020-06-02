@@ -8,8 +8,18 @@ public class Player : MonoBehaviour
     public float speed = 10;
     [Header("跳躍高度"), Range(1, 5000)]
     public float height;
-    public int countGet;
-    GameManager GM;
+     GameManager GM;
+
+
+
+    [Header("壽司音效")]
+    public AudioClip soundFood;
+    [Header("酒音效")]
+    public AudioClip soundWine;
+
+
+
+
 
 
     /// <summary>
@@ -24,9 +34,11 @@ public class Player : MonoBehaviour
         }
     }
 
-    private Animator ani;
-    private Rigidbody rig;
+    private Animator ani; //動畫
+    private Rigidbody rig; //剛體
+    private AudioSource aud; //喇叭
     private Vector3 angle;
+
     /// <summary>
     /// 從0慢慢增加
     /// </summary>
@@ -48,7 +60,7 @@ public class Player : MonoBehaviour
     {
         
         #region 移動
-        // 浮點數 前後值 = 輸入類別.取得軸向值("垂直) - 垂直 ws 上下
+        // 浮點數 前後值 = 輸入類別.取得軸向值("垂直") - 垂直 ws 上下
         float v = Input.GetAxisRaw("Vertical");
         // 水平 ad 左右
         float h = Input.GetAxisRaw("Horizontal");
@@ -119,10 +131,78 @@ public class Player : MonoBehaviour
     /// <summary>
     /// 碰到道具：碰到具有標籤[食物]的物件
     /// </summary>
-    private void HitProp() { }
+    private void HitProp(GameObject prop) 
+    {
+        
+        if (prop.tag == "食物")
+        {
+            aud.PlayOneShot(soundFood, 0.5f); // 喇叭.撥放一次音效(音效片段,音量)
+                Destroy(prop);
+        }
+        
+        if (prop.tag == "酒")
+        {
+            aud.PlayOneShot(soundWine, 2);
+                Destroy(prop);
+        }
+                GM.itemGet(prop.tag);
+
+    }
+
+
+    #region 碰撞事件
+    // 碰撞事件：當物件碰撞開始時執行一次 (沒有勾選 Is Trigger)
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        
+    }
+
+    // 碰撞事件：當物件碰撞分離時執行一次 (沒有勾選 Is Trigger)
+    private void OnCollisionExit(Collision collision)
+    {
+        
+    }
+
+    // 碰撞事件：當物件碰撞中持續執行 (沒有勾選 Is Trigger)
+    private void OnCollisionStay(Collision collision)
+    {
+        
+    }
+    #endregion
 
 
 
+
+
+    // 碰撞事件：當物件碰撞開始時執行一次 (有勾選 Is Trigger)
+    void OnTriggerEnter(Collider other)
+        {
+        //碰到道具(碰撞資訊.遊戲物件)
+        HitProp(other.gameObject);
+        }
+
+
+
+    /*
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "食物")
+        {
+            countGet += 1;
+            GM.itemGet(countGet);
+            Destroy(other.gameObject);
+        }
+        if(other.tag == "酒")
+        {
+             GM.TimeSubstract();
+                print("碰到的物件標籤為：" + other.name);
+                Destroy(other.gameObject);
+
+        }
+
+    }
+    */
 
     #endregion
 
@@ -139,7 +219,11 @@ public class Player : MonoBehaviour
         // 剛體 = 取得元件<剛體>();
         rig = GetComponent<Rigidbody>();
         ani = GetComponent<Animator>();
+        aud = GetComponent<AudioSource>();
 
+        // 僅限於場景上只有一個具此類別的物件存在時使用
+        //
+        GM = FindObjectOfType<GameManager>(); 
     }
 
     void Update()
@@ -148,16 +232,6 @@ public class Player : MonoBehaviour
         
         Jump();
     }
-        void OnTriggerEnter(Collider other)
-        {
-            if (other.tag == "食物")
-            {
-                countGet += 1;
-                Destroy(other.gameObject);
-            }
-
-
-        }
 
 
     // 固定更新頻率事件：一秒50禎 , 使用物理必須在此事件內
