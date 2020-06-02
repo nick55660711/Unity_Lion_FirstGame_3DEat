@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour
     public CanvasGroup final;
     [Header("文字介面：結束畫面標題")]
     public Text textTital;
-    private float gameTime = 35;
+    private float gameTime ;
     
     
     
@@ -204,6 +204,8 @@ public class GameManager : MonoBehaviour
     {
         countTotal = CreateProp(porps[0], 9); // 道具總數 = 生成道具(道具1號,指定數量)
         textGet.text = "道具數量：" + countGet + "/" + countTotal;
+        gameTime = 5 + 4*countTotal;
+
 
         CreateProp(porps[1], 10); //  生成道具(道具2號,指定數量)
 
